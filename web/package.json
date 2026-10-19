@@ -1,0 +1,1 @@
+{"name":"house-control-tv","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build --base=./"},"dependencies":{"three":"0.186.1","lucide":"0.544.0","qrcode":"1.5.4"},"devDependencies":{"vite":"8.3.4"}}

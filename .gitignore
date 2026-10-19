@@ -1,0 +1,10 @@
+.local/
+web/node_modules/
+web/dist/
+android/assets/
+android/build/
+android/dist/
+android/.signing/
+__pycache__/
+*.pyc
+.DS_Store
