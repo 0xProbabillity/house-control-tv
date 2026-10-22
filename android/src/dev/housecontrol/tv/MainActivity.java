@@ -25,6 +25,9 @@ public class MainActivity extends Activity {
     private String startupError="";
     private SharedPreferences prefs;
     private boolean homeBound;
+    private Daylight daylight;
+    /** QA: am start -n dev.housecontrol.tv/.MainActivity --es houseTV.daylight day|night|auto previews either look. */
+    private String daylightOverride = "auto";
     // Hold the engine/server for this Activity's lifetime, including QR sign-in.
     // A started-only service can be stopped as idle while the WebView retains it.
     private final ServiceConnection homeConnection = new ServiceConnection() {
@@ -36,6 +39,7 @@ public class MainActivity extends Activity {
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
         prefs = getSharedPreferences("connection", MODE_PRIVATE);
+        daylight = new Daylight(this);
         try {
             homeBound=bindService(new Intent(this,HomeService.class).setAction(HomeService.ACTIVITY_BIND),homeConnection,Context.BIND_AUTO_CREATE);
             if(!homeBound)throw new IOException("House Control service could not connect.");
@@ -44,7 +48,7 @@ public class MainActivity extends Activity {
         } catch(Exception error){startupError=HomeEngine.safe(error);}
         configure(getIntent());
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        web = new WebView(this); web.setBackgroundColor(0xff0a0e1a);
+        web = new WebView(this); web.setBackgroundColor(daylight.isDay(System.currentTimeMillis()) ? 0xffe9eaed : 0xff0d0d0f);
         WebSettings s = web.getSettings(); s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true);
         s.setAllowFileAccess(false); s.setAllowContentAccess(false); s.setMediaPlaybackRequiresUserGesture(true);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -60,7 +64,7 @@ public class MainActivity extends Activity {
                 if (!"housecontrol.local".equals(uri.getHost()) || !"https".equals(uri.getScheme())) return new WebResourceResponse("text/plain", "utf-8", 403, "Forbidden", java.util.Collections.emptyMap(), new ByteArrayInputStream(new byte[0]));
                 String path = uri.getPath(); if (path == null || path.equals("/")) path = "/index.html";
                 if (path.contains("..")) return null;
-                String mime = path.endsWith(".js") ? "application/javascript" : path.endsWith(".css") ? "text/css" : path.endsWith(".json") ? "application/json" : path.endsWith(".png") ? "image/png" : "text/html";
+                String mime = path.endsWith(".js") ? "application/javascript" : path.endsWith(".css") ? "text/css" : path.endsWith(".json") ? "application/json" : path.endsWith(".png") ? "image/png" : path.endsWith(".jpg") ? "image/jpeg" : "text/html";
                 try { return new WebResourceResponse(mime, "utf-8", getAssets().open("web" + path)); }
                 catch (IOException e) { return new WebResourceResponse("text/plain", "utf-8", 404, "Not Found", java.util.Collections.emptyMap(), new ByteArrayInputStream(new byte[0])); }
             }
@@ -68,6 +72,8 @@ public class MainActivity extends Activity {
         setContentView(web); web.loadUrl(ORIGIN + "index.html"); web.requestFocus();
     }
     private void configure(Intent i) {
+        String look=i.getStringExtra("houseTV.daylight");
+        if(look!=null&&look.matches("day|night|auto")){daylightOverride=look;i.removeExtra("houseTV.daylight");}
         if((i.hasExtra("homeImport")||i.hasExtra("remoteKey"))&&engine!=null&&engine.plan!=null){
             String expected=prefs.getString("remoteKey", ""),provided=i.getStringExtra("provisionKey");
             if(provided==null||expected.isEmpty()||!java.security.MessageDigest.isEqual(expected.getBytes(SharingTransport.UTF8),provided.getBytes(SharingTransport.UTF8))){startupError="Use your paired Mac or the private phone link to update this TV.";return;}
@@ -103,6 +109,13 @@ public class MainActivity extends Activity {
             catch(Exception e){ return "{}"; }
         }
         @JavascriptInterface public void exit() { runOnUiThread(() -> finish()); }
+        /** Light by day, dark after sunset, at the time zone's main city (no location permission). */
+        @JavascriptInterface public String daylight() {
+            long now=System.currentTimeMillis();
+            boolean day=daylightOverride.equals("auto")?daylight.isDay(now):daylightOverride.equals("day");
+            try { return new JSONObject().put("day", day).put("next", daylight.nextChange(now)).toString(); }
+            catch(Exception e){ return "{}"; }
+        }
         @JavascriptInterface public void request(int id, String path, String body) {
             if (!java.util.Arrays.asList("/api/demo/action","/api/demo","/api/home","/api/action","/api/auth/status","/api/auth/start","/api/auth/check","/api/auth/logout","/api/import","/api/connections","/api/connections/discover","/api/homeassistant/connect","/api/homeassistant/disconnect","/api/hue/pair","/api/hue/disconnect").contains(path)) return;
             network.execute(() -> {

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="docs/house-control-tv-tour.mp4"><img src="docs/house-control-tv-preview.webp" width="900" alt="House Control on a TV: a 3D model of a loft, its lamps changing with the Movie, Night and Bright scenes"></a>
+  <img src="docs/house-control-tv.jpg" width="900" alt="House Control on a TV by day: the 3D model of a loft over pale silver silk, its lamps in a large list on the right and the scenes below, Cozy active">
 </p>
 
 <h1 align="center">House Control TV</h1>
@@ -29,20 +29,23 @@
   with its own sign-in, Home Assistant and Philips Hue over your Wi-Fi. No Mac, no server, no account of ours.
 - **Live.** Changes made elsewhere (a wall switch, the Hue app, an automation) show up within a second through Home
   Assistant's and Hue's event streams; Smart Life is read every 12 seconds while the TV is in use.
+- **Made for the sofa.** Large type and controls, the rooms in one row at the top, the lights as big rows with
+  switches. Pale silver by day and graphite after sunset, worked out for the TV's time zone (no location
+  permission); the 3D home floats over it, lit by the sun or the moon. The phone follows its own light or dark mode.
 - **Your phone as a remote.** Scan a private QR code on the TV and your phone controls the same home over Wi-Fi.
 - **Stays in step with your Mac.** Edit the plan, a device link or a scene in House Control on the Mac and the TV
   has it seconds later. The Mac's Home Assistant and Hue connections come along, so there is nothing to set up twice.
-- **On the home screen.** With [Luma](https://github.com/0xProbabillity/luma-tv), the TV's Home shows five scene
-  buttons and a live preview of the 3D model; *Movie* can dim the lights and open Netflix.
+- **On the home screen.** With [Luma](https://github.com/0xProbabillity/luma-tv), the TV's Home shows five round
+  scene buttons and your 3D home floating on the wallpaper; *Movie* can dim the lights and open Netflix.
 - **Try it without touching anything.** *Sync & connect → Explore demo home* loads a furnished demo loft that has no
   connection to any device.
 
 <p align="center">
-  <img src="docs/tv-climate.jpg" width="49%" alt="An air conditioner card: power and target temperature">
-  <img src="docs/tv-services.jpg" width="49%" alt="Sync & connect: Home Assistant connected, a Hue Bridge ready to pair">
-  <img src="docs/tv-sync.jpg" width="49%" alt="Sync & connect: Smart Life connected, the private QR code for the phone">
+  <img src="docs/tv-climate.jpg" width="49%" alt="At night: the Climate tab with an air conditioner card, power and target temperature">
+  <img src="docs/tv-services.jpg" width="49%" alt="By day: Home Assistant connected, a Hue Bridge ready to pair">
+  <img src="docs/tv-sync.jpg" width="49%" alt="By day: Sync & connect, Smart Life connected and the private QR code for the phone">
   <img src="docs/tv-support.jpg" width="49%" alt="Support the author: four QR codes for tips in crypto">
-  <br><sub>Screenshots use the bundled demo home.</sub>
+  <br><sub>Screenshots use the bundled demo home and example addresses.</sub>
 </p>
 
 | Platform | How the TV connects |
@@ -130,7 +133,7 @@ The phone is also the easy way to paste a Home Assistant token or import a floor
 
 [Luma](https://github.com/0xProbabillity/luma-tv) shows House Control's scenes and a live 3D preview on the TV's
 Home. House Control only answers a Luma signed with a key it trusts: the official Luma release, a Luma built in a
-`luma-tv` folder next to this one, or certificates you list (SHA-256, comma-separated) in `HOUSE_TV_LUMA_CERTS` when
+`luma-tv` folder next to this one (your own builds only, not releases), or certificates you list (SHA-256, comma-separated) in `HOUSE_TV_LUMA_CERTS` when
 building. Luma never receives a password, token or the phone key.
 
 ## Privacy and security

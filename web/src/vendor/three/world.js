@@ -63,8 +63,9 @@ export function createWorld(canvas, config, store, { onHover, onPick, background
   }
   const hitTargets = [...[...lights.values()].map((u) => u.hit), ...[...acs.values()].map((u) => u.hit), ...house.floors];
 
-  // Night-time ambience: enough to read the model with every lamp off.
-  scene.add(new THREE.HemisphereLight(0x8ea6ff, 0x0b0e17, 0.42));
+  // Night-time ambience: enough to read the model with every lamp off. setDaylight() swaps it for a soft sun.
+  const sky = new THREE.HemisphereLight(0x8ea6ff, 0x0b0e17, 0.42);
+  scene.add(sky);
   const moon = new THREE.DirectionalLight(0xa9c0ff, 0.6);
   // Steep and coming from the viewer's side, so the faces we look at stay readable.
   moon.position.copy(center).add(new THREE.Vector3(camDir.x * 3.2 + 1.5, 10, camDir.z * 3.2 - 1.5));
@@ -368,6 +369,14 @@ export function createWorld(canvas, config, store, { onHover, onPick, background
     tvPoint(){const tv=config.furniture.find(i=>i.type==='tv');if(!tv)return null;const p=new THREE.Vector3(tv.pos[0]-Math.sin(rad(tv.rot||0))*.129,(tv.y||0)+.745,tv.pos[1]-Math.cos(rad(tv.rot||0))*.129).project(camera);return {x:(p.x+1)/2,y:(1-p.y)/2};},
 
     setZoom(z){rig.zoom=clamp(z,ZOOM_MIN,ZOOM_MAX);frameGoal();wake();},
+
+    /** Daylight: a bright neutral sky and a warm sun, for pale backgrounds. Night: a cool moon. */
+    setDaylight(day, instant = false) {
+      if (day) { sky.color.set(0xf4f6ff); sky.groundColor.set(0x8d877e); sky.intensity = 1.35; moon.color.set(0xfff0dc); moon.intensity = 1.55; renderer.toneMappingExposure = 1.0; }
+      else { sky.color.set(0x8ea6ff); sky.groundColor.set(0x0b0e17); sky.intensity = 0.42; moon.color.set(0xa9c0ff); moon.intensity = 0.6; renderer.toneMappingExposure = 1.05; }
+      renderer.shadowMap.needsUpdate = true;
+      if (!instant) wake(3);
+    },
 
     resetPresentation(){if(presentationAspect){camera.aspect=presentationAspect;camera.updateProjectionMatrix();}},
 

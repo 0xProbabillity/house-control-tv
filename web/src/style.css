@@ -61,3 +61,113 @@ button:focus-visible svg{color:var(--ink)!important}
 .standalone-content h3{font-size:1rem;font-weight:500;margin:1.8rem 0 .3rem}.standalone-content>.secondary+.secondary{margin-left:.6rem}
 .standalone-content>.sync-note{font-size:.68rem;color:#8ea2c2;line-height:1.6}.standalone-content>.sync-state{border-top:0;padding-top:.2rem}
 .info-panel{max-height:92dvh;overflow:auto}.info-panel.wide{width:76rem}.about-links{list-style:none;padding:0;margin:1.4rem 0;display:grid;gap:.7rem}.about-links li{display:flex;gap:1rem;align-items:baseline;font-size:.8rem}.about-links li>span{color:#8ea2c2;min-width:7rem}.about-link{color:#dce9ff;font-size:.8rem;text-decoration:none;word-break:break-all}a.about-link:hover{text-decoration:underline}.info-qr{background:#fff;border-radius:.6rem;display:block;width:10rem!important;height:10rem!important;flex-shrink:0}.donations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-top:1.4rem}.donation{background:#1a2438;border:1px solid #2c3b54;border-radius:1rem;padding:1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5rem;outline:none}.donation:focus-visible{outline:.2rem solid #e5eeff;outline-offset:.2rem}.donation h3{margin:0;font-size:.95rem;font-weight:500}.donation-network{margin:0;color:#8ea2c2;font-size:.6rem;line-height:1.4;min-height:2.8em;flex:1 0 auto}.donation .info-qr{width:9.5rem!important;height:9.5rem!important;margin:.3rem 0}.donation-address{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.58rem;color:#dce9ff;word-break:break-all;line-height:1.45;user-select:all}@media(max-aspect-ratio:1/1){.info-panel.wide{width:auto}.donations{grid-template-columns:1fr}.donation .info-qr{width:13rem!important;height:13rem!important}.donation-address{font-size:.8rem}.about-links li{flex-direction:column;gap:.2rem}}
+
+/* ---- 2.7: Apple-like and larger. Silver silk behind everything, light by day and dark after sunset (main.js
+   sets html[data-theme]). Bigger type for the sofa, fewer elements: the rooms share the header, the stats are one
+   line under the title, no footer. Focus is the opposite tone of the page: white at night, near-black by day. ---- */
+:root,:root[data-theme=night]{--text:#f5f5f7;--text-2:rgba(245,245,247,.68);--text-3:rgba(245,245,247,.46);--glass:rgba(255,255,255,.08);--glass-2:rgba(255,255,255,.16);--line:rgba(255,255,255,.1);--panel:rgba(22,22,24,.42);--well:rgba(0,0,0,.22);--solid:#1c1c1e;--fbg:#fff;--fink:#1d1d1f;--ring:rgba(255,255,255,.3);--warm:#ffc46b;--warm-bg:rgba(255,196,107,.16);--green:#34c759;--amber:#f0a94a;
+  --backdrop:linear-gradient(90deg,rgba(9,9,11,.62),rgba(9,9,11,.18) 55%,rgba(9,9,11,.4)),url(/silk-night.jpg) center/cover no-repeat,#0d0d0f;--scrim:rgba(0,0,0,.72)}
+:root[data-theme=day]{--text:#1d1d1f;--text-2:rgba(29,29,31,.66);--text-3:rgba(29,29,31,.46);--glass:rgba(255,255,255,.56);--glass-2:rgba(255,255,255,.92);--line:rgba(0,0,0,.06);--panel:rgba(255,255,255,.4);--well:rgba(0,0,0,.05);--solid:#f5f5f7;--fbg:#1d1d1f;--fink:#fff;--ring:rgba(0,0,0,.14);--warm:#b8690a;--warm-bg:rgba(255,190,90,.24);--amber:#c27a12;
+  --backdrop:linear-gradient(90deg,rgba(246,246,248,.66),rgba(246,246,248,.12) 55%,rgba(246,246,248,.34)),url(/silk-day.jpg) center/cover no-repeat,#e9eaed;--scrim:rgba(236,236,240,.8);color-scheme:light}
+:root{color:var(--text);background:var(--backdrop)}
+body{background:var(--backdrop);color:var(--text)}
+#status,#status.offline{display:inline-flex;align-items:center;gap:.5rem;width:max-content;background:var(--glass);color:var(--text-2);padding:.4rem .8rem;border-radius:1rem;font-size:.72rem;margin:.9rem 0 0}
+#status:before{background:var(--green);box-shadow:none}#status.offline:before{background:var(--amber)}
+.logo{background:var(--glass);border:1px solid var(--line);color:var(--text)}
+.sync-button{background:var(--glass);border:1px solid var(--line);color:var(--text)}
+#clock{color:var(--text)}
+.rooms{background:var(--glass)}
+.room-tab{color:var(--text-2)}.room-tab.selected{background:var(--glass-2);color:var(--text)}
+.stage-caption h1{color:var(--text)}
+.summary{margin:.5rem 0 0;color:var(--text-2)}
+.orbit-button{background:var(--glass);border:1px solid var(--line);color:var(--text)}
+.controls{background:var(--panel);border:1px solid var(--line)}
+.controls h2,.scenes h2{color:var(--text)}
+.controls-heading>span{background:var(--glass);color:var(--text-2)}
+.device-filters{background:var(--well)}.device-filter{color:var(--text-2)}.device-filter.selected{background:var(--glass-2);color:var(--text)}
+.all-off{background:var(--glass);color:var(--text)}
+.light-row{background:var(--glass)}
+.light-icon{background:var(--glass);color:var(--text-3)}
+.on .light-icon{background:var(--warm-bg);color:var(--warm);box-shadow:none}
+.light-title strong{color:var(--text)}.light-title small,.on .light-title small{color:var(--text-3)}.on .light-title small{color:var(--text-2)}
+.toggle{background:var(--well)}:root[data-theme=night] .toggle{background:rgba(255,255,255,.18)}
+.climate-card{background:var(--glass)}.device-room,.climate-info,.climate-info span:first-child,.temperature span{color:var(--text-2)}
+.step{background:var(--glass);border:1px solid var(--line);color:var(--text)}.power{color:var(--text-2);border:1px solid var(--line)}
+.on .power{background:var(--fbg);color:var(--fink);border-color:transparent}
+.scene-button{background:var(--glass);border:1px solid var(--line);color:var(--text)}
+.scene-button.active{background:var(--warm-bg);border-color:var(--warm);color:var(--text)}.scene-button.active svg{color:var(--warm)}
+.empty{color:var(--text-3)}
+button:focus-visible{background:var(--fbg)!important;color:var(--fink)!important;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.26),0 0 0 .14rem var(--ring)}
+button:focus-visible svg,button:focus-visible .light-title strong{color:var(--fink)!important}
+.light-row:focus-visible .light-title small{color:var(--fink);opacity:.62}
+.light-row:focus-visible .light-icon{background:rgba(127,127,127,.18);color:var(--fink)}
+.light-row:focus-visible.on .light-icon{background:#ffe2b3;color:#7a4a00}
+.light-row:focus-visible .toggle{background:rgba(127,127,127,.32)}.light-row:focus-visible.on .toggle{background:var(--green)}
+.toast{background:var(--fbg);color:var(--fink)}
+.modal-backdrop{background:var(--scrim)}
+.sync-panel{background:var(--solid);border:1px solid var(--line);color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.35)}
+.back-button{color:var(--text-2)}.sync-description,.sync-content p,.setup p{color:var(--text-2)}.sync-note,.standalone-content>.sync-note,.sync-content .sync-note,.import-row,.donation-network,.about-links li>span{color:var(--text-3)}
+.sync-state{color:var(--text-2);border-top-color:var(--line)}
+.primary{background:var(--fbg);color:var(--fink)}.secondary{background:var(--glass-2);color:var(--text)}
+:root[data-theme=day] .secondary{background:rgba(0,0,0,.06)}
+.login-form label{color:var(--text-2)}.login-form input{background:var(--glass);border:1px solid var(--line);color:var(--text)}.login-form input:focus{outline:3px solid var(--text)}
+.donation{background:var(--glass);border:1px solid var(--line)}.donation-address,.about-link{color:var(--text)}.donation:focus-visible{outline:.2rem solid var(--text)}
+.render-error{background:var(--solid);border-color:var(--line)}
+.setup-error,.setup .setup-error{color:var(--amber)}
+.boot{color:var(--text-2)}
+/* TV and other landscape screens */
+@media(min-aspect-ratio:1/1){
+  :root{font-size:clamp(10px,1.25vw,28px)}
+  #app{grid-template-rows:4.8rem minmax(0,1fr) 6.2rem;padding:0 2.6rem}
+  header{display:flex;align-items:center;gap:1.4rem;min-width:0}
+  .brand{flex:none;gap:.8rem}.logo{width:2.6rem;height:2.6rem;border-radius:.85rem}.logo svg{width:1.45rem;height:1.45rem}
+  .brand strong{font-size:1.1rem;font-weight:600;letter-spacing:-.02em}
+  .rooms{flex:0 1 auto;min-width:0;margin:0 auto;padding:.25rem;gap:.15rem;border-radius:2rem;overflow-x:auto}
+  .room-tab{height:2.4rem;padding:0 1.05rem;border-radius:1.2rem;font-size:.95rem;font-weight:500}
+  .connection{flex:none;gap:1.1rem}
+  #clock{font-size:1.25rem;font-weight:500}
+  .sync-button{font-size:.85rem;padding:.65rem 1rem;border-radius:1.4rem}.sync-button svg{width:1.1rem;height:1.1rem}
+  .layout{grid-template-columns:minmax(0,1fr) 23.5rem;gap:1.8rem;padding-top:.2rem}
+  .stage{border-radius:0;overflow:visible}
+  .stage-caption{top:.5rem;left:.1rem}
+  .stage-caption h1{font-size:2.7rem;font-weight:600;letter-spacing:-.045em;line-height:1.05}
+  .summary{font-size:1rem}
+  .orbit-button{left:.1rem;right:auto;bottom:.6rem;font-size:.85rem;padding:.7rem 1.05rem;border-radius:1.5rem;gap:.55rem}.orbit-button svg{width:1.15rem;height:1.15rem}
+  .controls{border-radius:1.6rem;padding:1.1rem 1.1rem 0;margin-bottom:.4rem}
+  .controls-heading{padding:.1rem .1rem .8rem}.controls h2{font-size:1.2rem}.controls-heading>span{font-size:.75rem;padding:.2rem .5rem;border-radius:.5rem}
+  .device-filters{border-radius:1.2rem;padding:.25rem;margin-bottom:.7rem}.device-filter{font-size:.88rem;padding:.6rem .4rem;border-radius:.95rem}.device-filter svg{width:1.1rem;height:1.1rem}
+  .all-off{font-size:.88rem;padding:.7rem;border-radius:1.1rem;margin-bottom:.4rem}
+  .device-list{padding:.6rem .8rem 1.2rem;margin:0 -.8rem}
+  .light-row{gap:.8rem;padding:.7rem .7rem;border-radius:1.15rem;margin:0 0 .5rem}
+  .light-icon{width:2.5rem;height:2.5rem;border-radius:.85rem}.light-icon svg{width:1.3rem;height:1.3rem}
+  .light-title{gap:.28rem}.light-title strong{font-size:.98rem;font-weight:560}.light-title small{font-size:.76rem}
+  .toggle{width:2.75rem;height:1.6rem;padding:.2rem}.toggle i{width:1.2rem;height:1.2rem}.on .toggle i{transform:translateX(1.15rem)}
+  .climate-card{border-radius:1.2rem;padding:1.1rem}.device-title h3{font-size:1rem}.device-room{font-size:.72rem}.climate-info{font-size:.75rem}
+  .icon-button{width:2.6rem;height:2.6rem}.temperature{font-size:3.4rem}
+  .scenes{gap:1.6rem;padding:.2rem 0 .4rem}.scene-heading{width:auto}.scenes h2{font-size:1.15rem}
+  .scene-list{gap:.8rem;padding:.9rem;margin:-.9rem -.6rem}
+  .scene-button{flex-direction:row;gap:.6rem;height:3.5rem;min-width:0;padding:0 1.5rem 0 1.25rem;border-radius:1.75rem;font-size:.98rem;font-weight:560}
+  .scene-button svg{width:1.35rem;height:1.35rem}
+  button:focus-visible{transform:scale(1.06)}.light-row:focus-visible{transform:scale(1.035)}.room-tab:focus-visible{transform:scale(1.06)}
+  .toast{font-size:.95rem;padding:1rem 1.6rem;border-radius:1.4rem;bottom:2.4rem}
+  .sync-panel{width:52rem;border-radius:1.8rem}.sync-panel h2{font-size:2.1rem}.sync-description{font-size:.95rem}
+  .primary,.secondary{font-size:.92rem;padding:.95rem 1.4rem;border-radius:1.4rem}
+  .standalone-content>.secondary{font-size:.85rem;margin:.8rem .5rem 0 0}.standalone-content>.secondary+.secondary{margin-left:0}
+  .standalone-content .sync-description{font-size:.95rem}.sync-state{font-size:.82rem}.sync-note,.standalone-content>.sync-note,.sync-content .sync-note{font-size:.78rem}
+  .sync-content h3,.standalone-content h3{font-size:1.1rem}.sync-content p{font-size:.88rem}.back-button{font-size:.85rem}
+  .login-form label{font-size:.85rem}.login-form input{font-size:.95rem}
+  .about-links li,.about-link{font-size:.9rem}.donation h3{font-size:1.05rem}.donation-network{font-size:.72rem}.donation-address{font-size:.68rem}
+}
+/* Phones: the rooms wrap under the app name */
+@media(max-aspect-ratio:1/1){
+  #app{grid-template-rows:auto auto auto}
+  header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:1rem 0 .4rem}
+  .rooms{order:3;width:100%;margin:.8rem 0 0;max-width:100%}
+  .stage{height:24rem}
+  .orbit-button{left:.2rem;right:auto;bottom:.6rem}
+  #status,#status.offline{max-width:100%;font-size:.68rem;white-space:normal}
+}
+.stage-caption .summary{display:block;font-size:1rem;color:var(--text-2);margin:.55rem 0 0}
+:root .light-row.on .toggle{background:var(--green)}
+/* While the bundle loads there is only the silk (index.html picks day or night); the page then fades in. */
+#app>header,#app>.layout,#app>.scenes{animation:hc-in .45s cubic-bezier(.22,1,.36,1) both}@keyframes hc-in{from{opacity:0}}

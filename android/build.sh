@@ -15,13 +15,16 @@ rm -f build/resources.zip build/resources.apk build/unsigned.apk
 "$BT/aapt2" compile --dir res -o build/resources.zip
 "$BT/aapt2" link -o build/resources.apk -I "$ANDROID_JAR" --manifest AndroidManifest.xml --java build/generated --auto-add-overlay -A assets build/resources.zip
 # The Luma launchers whose widgets may read this home: HOUSE_TV_LUMA_CERTS (SHA-256 of signing certificates,
-# comma-separated), plus the key of a Luma built next to this folder, plus the official Luma release key.
+# comma-separated), plus the official Luma release key, plus, for local builds only, the key of a Luma built next to
+# this folder. A build signed with HOUSE_TV_KEYSTORE (a release) never picks up a local key by itself.
 LUMA_CERTS="${HOUSE_TV_LUMA_CERTS:-}"
-for keystore in ../../luma-tv/.signing/local.keystore ../../launcher/.signing/local.keystore; do
-    if [ -f "$keystore" ]; then
-        LUMA_CERTS="$LUMA_CERTS,$("$JDK/bin/keytool" -list -v -keystore "$keystore" -storepass android -alias luma-local 2>/dev/null | sed -n 's/^.*SHA256: //p' | tr -d ':' | tr 'A-F' 'a-f')"
-    fi
-done
+if [ -z "${HOUSE_TV_KEYSTORE:-}" ]; then
+    for keystore in ../../luma-tv/.signing/local.keystore ../../launcher/.signing/local.keystore; do
+        if [ -f "$keystore" ]; then
+            LUMA_CERTS="$LUMA_CERTS,$("$JDK/bin/keytool" -list -v -keystore "$keystore" -storepass android -alias luma-local 2>/dev/null | sed -n 's/^.*SHA256: //p' | tr -d ':' | tr 'A-F' 'a-f')"
+        fi
+    done
+fi
 LUMA_CERTS="$LUMA_CERTS,22827fdf43a69ecdb377b734d4a02c5e96b6e0bbb1654aa297e47208585854d3" # the official Luma release key
 python3 - "$LUMA_CERTS" > build/generated/dev/housecontrol/tv/Trust.java <<'PY'
 import re, sys

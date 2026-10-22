@@ -50,7 +50,8 @@ async function command(action) {
       emit(); update();
     } else {
       const result = await api(bundle?.mode==='demo'?'/api/demo/action':'/api/action', action); apply(result.home);
-      toast(result.direct ? (action.kind === 'acTarget' ? 'Temperature saved on TV' : 'Device settings updated directly') : 'Command sent to House Control');
+      // The switch, the model and the summary already show a change; only a target saved for an infrared AC needs saying.
+      if (result.direct && action.kind === 'acTarget') toast('Temperature saved on TV');
     }
   } catch (error) { toast(error.message); }
   finally { busy = false; app.classList.remove('pending'); }
@@ -60,7 +61,6 @@ function selectRoom(id) {
   room = id; world?.focus(id === 'all' ? null : { kind: 'room', id });
   for (const b of document.querySelectorAll('[data-room]')) { const selected = b.dataset.room === id; b.classList.toggle('selected', selected); b.setAttribute('aria-pressed', selected); }
   $('#room-title').textContent = id === 'all' ? 'Whole home' : roomName(id);
-  $('#view-label').textContent = id === 'all' ? 'Your home. At a glance.' : 'A closer look at your room.';
   renderDevices(); update();
 }
 function renderDevices() {
@@ -103,11 +103,12 @@ function update() {
   const on = Object.values(store.state.lights).filter(s => s.on).length;
   $('#status').textContent = (demo || bundle?.mode === 'demo') ? 'Demo · no real devices' : bundle?.mode === 'standalone' ? (bundle.connectionLabel || (online ? 'TV · Smart Life connected' : 'Connect Smart Life on TV')) : online ? 'Synced with Mac' : 'Mac offline · view only';
   $('#status').classList.toggle('offline', !online && !demo);
-  $('#lights-on').textContent = on;
-  $('#lights-total').textContent = 'of ' + config.lights.length + ' on';
   const acOn = Object.values(store.state.acs).filter(s => s.on).length;
-  $('#climate-on').textContent = acOn ? acOn + ' running' : 'Off';
-  $('#active-scene').textContent = config.scenes.find(s => s.id === store.state.scene)?.name || 'Manual control';
+  const sceneName = config.scenes.find(s => s.id === store.state.scene)?.name;
+  const parts = [on ? `${on} of ${config.lights.length} lights on` : 'All lights off'];
+  if (config.acs.length) parts.push(acOn ? `${acOn} AC running` : 'Climate off');
+  if (sceneName) parts.push(sceneName);
+  $('#summary').textContent = parts.join('  ·  ');
   for (const [id, n] of lightNodes) {
     const s = store.state.lights[id]; if (!s) continue;
     n.b.classList.toggle('on', s.on); n.b.setAttribute('aria-pressed', String(s.on));
@@ -130,30 +131,28 @@ function update() {
 function sceneIcon(s) { return ({ sun:'Sun', sofa:'Sofa', film:'Film', moon:'Moon', door:'DoorOpen' })[s.icon] || 'Sun'; }
 function render() {
   app.replaceChildren(); sceneNodes.clear();
+  // One header row: the app, the rooms, then the time and Sync & connect.
   const header = el('header');
   const brand = el('div','brand'); const logo = el('span','logo'); logo.append(icon('House',28));
   const brandText = el('div'); brandText.append(el('strong','','House Control')); brand.append(logo,brandText);
-  const connection = el('div','connection'); const status = el('span'); status.id='status';
-  const clock = el('time'); clock.id='clock';
-  connection.append(status, clock, button('Sync & connect', 'Smartphone', openSync, 'sync-button'));
-  header.append(brand, connection);
   const tabs = el('nav','rooms'); tabs.setAttribute('aria-label','Rooms');
   for (const r of [{id:'all',name:'Whole home'}, ...config.rooms]) {
-    const b = button(r.name, r.id==='all'?'House':null,()=>selectRoom(r.id),'room-tab'); b.dataset.room=r.id; b.classList.toggle('selected',r.id===room); b.setAttribute('aria-pressed',r.id===room); tabs.append(b);
+    const b = button(r.name, null,()=>selectRoom(r.id),'room-tab'); b.dataset.room=r.id; b.classList.toggle('selected',r.id===room); b.setAttribute('aria-pressed',r.id===room); tabs.append(b);
   }
+  const connection = el('div','connection');
+  const clock = el('time'); clock.id='clock';
+  connection.append(clock, button('Sync & connect', 'Smartphone', openSync, 'sync-button'));
+  header.append(brand, tabs, connection);
   const layout = el('main','layout');
   const stage = el('section','stage');
-  const caption = el('div','stage-caption'); const subtitle = el('p','','Your home. At a glance.'); subtitle.id='view-label';
-  const title = el('h1','','Whole home'); title.id='room-title'; caption.append(subtitle,title);
-  const homeName = el('div','home-name',config.name);
+  const caption = el('div','stage-caption');
+  const title = el('h1','','Whole home'); title.id='room-title';
+  const summary = el('p','summary'); summary.id='summary';
+  const status = el('p'); status.id='status';
+  caption.append(title,summary,status);
   const canvas = el('canvas'); canvas.id='world'; canvas.setAttribute('aria-label','Interactive 3D home model');
-  const stats = el('div','stats');
-  const lightStat=el('div'); const on=el('strong'); on.id='lights-on'; const total=el('small'); total.id='lights-total'; lightStat.append(icon('Lightbulb'),on,total);
-  const acStat=el('div'); const ac=el('strong'); ac.id='climate-on'; acStat.append(icon('Snowflake'),ac,el('small','','Climate'));
-  const sceneStat=el('div'); const sc=el('strong'); sc.id='active-scene'; sceneStat.append(icon('Sofa'),sc,el('small','','Current scene'));
-  stats.append(lightStat,acStat,sceneStat);
   const orbit = button('Explore in 3D','Rotate3d',()=>{orbiting=!orbiting; orbit.classList.toggle('active',orbiting); toast(orbiting?'Arrow keys rotate the model · OK or Back to finish':'Remote navigation');},'orbit-button'); orbit.id='orbit';
-  stage.append(canvas,caption,homeName,stats,orbit);
+  stage.append(canvas,caption,orbit);
   const aside = el('aside','controls'); const heading=el('div','controls-heading'); const count=el('span');count.id='device-count';heading.append(el('h2','','Devices'),count);
   const off=button('Lights off','Power',()=>command({kind:room==='all'?'allLights':'room',...(room==='all'?{}:{id:room}),on:false}),'all-off'); off.id='all-off';
   const filters=el('div','device-filters');
@@ -167,19 +166,31 @@ function render() {
   for (const s of config.scenes) { const b=button(s.name,sceneIcon(s),()=>command({kind:'scene',id:s.id}),'scene-button'); sceneList.append(b);sceneNodes.set(s.id,b); }
   if (!config.scenes.length) sceneList.append(el('p','empty','Add scenes in House Control on your Mac.'));
   scenes.append(sceneTitle,sceneList);
-  const footer=el('footer');footer.append(el('span','','OK  Select'),el('span','','Back  Whole home'));
   const toastNode=el('div','toast');toastNode.id='toast';toastNode.setAttribute('role','status');
-  app.append(header,tabs,layout,scenes,footer,toastNode);
+  app.append(header,layout,scenes,toastNode);
   renderDevices(); update(); tickClock();
   try {
-    world=createWorld(canvas,config,store,{resolution:()=>RES,onHover(){},onPick(t){if(!t)return;if(t.kind==='room')selectRoom(t.id);if(t.kind==='light')command({kind:'light',id:t.id,on:!store.state.lights[t.id].on});if(t.kind==='ac'){const d=config.acs.find(d=>d.id===t.id);deviceKind='acs';selectRoom(d.room);acNodes.get(t.id)?.power.focus();}}});
-    world.setInsets(24,38);world.setRunning(true);world.intro();
+    world=createWorld(canvas,config,store,{background:'transparent',resolution:()=>RES,onHover(){},onPick(t){if(!t)return;if(t.kind==='room')selectRoom(t.id);if(t.kind==='light')command({kind:'light',id:t.id,on:!store.state.lights[t.id].on});if(t.kind==='ac'){const d=config.acs.find(d=>d.id===t.id);deviceKind='acs';selectRoom(d.room);acNodes.get(t.id)?.power.focus();}}});
+    world.setDaylight(theme.day,true);world.setInsets(70,30);world.setRunning(true);world.intro();
     setTimeout(()=>console.info('TV_RENDER_STATS',JSON.stringify(world?.stats())),6000);
     resizeObserver?.disconnect(); resizeObserver=new ResizeObserver(()=>world?.resize()); resizeObserver.observe(canvas);
   } catch(error) { stage.append(el('div','render-error','3D is unavailable on this device. You can still use the controls on the right.')); console.error(error); }
   requestAnimationFrame(()=>tabs.querySelector('button').focus({preventScroll:true}));
   window.__houseTV={get config(){return config;},get state(){return store.state;},get online(){return online;},get world(){return world;},command,selectRoom};
 }
+// Light by day, dark after sunset: the TV reports sunrise and sunset; a phone follows its own appearance setting.
+let theme={day:false,next:0},themeTimer=0;
+function readDaylight(){
+  try{const d=JSON.parse(window.HouseTV?.daylight?.()||'null');if(d&&typeof d.day==='boolean')return d;}catch{}
+  return {day:!matchMedia('(prefers-color-scheme: dark)').matches,next:Date.now()+3600e3};
+}
+function applyTheme(){
+  theme=readDaylight();document.documentElement.dataset.theme=theme.day?'day':'night';world?.setDaylight(theme.day);
+  clearTimeout(themeTimer);themeTimer=setTimeout(applyTheme,Math.max(30e3,Math.min(3600e3,theme.next-Date.now()+2000)));
+}
+applyTheme();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(!window.HouseTV)applyTheme();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)applyTheme();});
 function tickClock(){if($('#clock'))$('#clock').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 setInterval(tickClock,15000);
 let modalCleanup = null;
@@ -320,11 +331,15 @@ function navigate(key){
   if(!modal && current?.matches('[data-room]')){
     const tabs=[...document.querySelectorAll('[data-room]')],i=tabs.indexOf(current);
     if(key==='ArrowDown')return focus(deviceFilter());
-    if(key==='ArrowUp')return focus($('.sync-button'));
+    if(key==='ArrowUp')return true;
     if(key==='ArrowLeft')return focus(tabs[Math.max(0,i-1)]);
-    if(key==='ArrowRight')return focus(tabs[i+1]||deviceFilter());
+    if(key==='ArrowRight')return focus(tabs[i+1]||$('.sync-button'));
   }
-  if(current?.matches('.sync-button')&&key==='ArrowDown')return focus(selectedRoom());
+  if(!modal && current?.matches('.sync-button')){
+    if(key==='ArrowDown')return focus(deviceFilter());
+    if(key==='ArrowLeft')return focus([...document.querySelectorAll('[data-room]')].pop());
+    return true;
+  }
   if(current?.matches('[data-kind]')){
     if(key==='ArrowUp')return focus(selectedRoom());
     if(key==='ArrowDown')return focus(deviceKind==='lights'?$('#all-off'):firstDevice()||scene());
@@ -345,7 +360,7 @@ function navigate(key){
   }
   if(current?.matches('.scene-button')){
     const scenes=[...sceneNodes.values()].filter(b=>!b.disabled),i=scenes.indexOf(current);
-    if(key==='ArrowUp')return focus(deviceFilter());
+    if(key==='ArrowUp')return focus($('#orbit'));
     if(key==='ArrowLeft')return focus(scenes[Math.max(0,i-1)]);
     if(key==='ArrowRight')return focus(scenes[Math.min(scenes.length-1,i+1)]);
   }
